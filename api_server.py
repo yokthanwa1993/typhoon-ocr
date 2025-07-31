@@ -11,6 +11,7 @@ import requests
 import base64
 import logging
 import os
+import tempfile
 from dotenv import load_dotenv
 from typing import Optional
 from typhoon_ocr import ocr_document
@@ -86,15 +87,20 @@ def process_base64_image(base64_data: str) -> tuple[bytes, int]:
 def process_ocr_in_memory(image_data: bytes, task_type: str = "default", page_num: int = 1) -> str:
     """ประมวลผล OCR จาก bytes โดยไม่บันทึกลงเครื่อง"""
     try:
-        # แปลง bytes เป็น PIL Image
-        image = Image.open(io.BytesIO(image_data))
+        # สร้างไฟล์ชั่วคราว
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.jpg')
+        temp_file.write(image_data)
+        temp_file.close()
         
         # ประมวลผล OCR
         result = ocr_document(
-            image=image,
+            pdf_or_image_path=temp_file.name,
             task_type=task_type,
             page_num=page_num
         )
+        
+        # ลบไฟล์ชั่วคราว
+        os.unlink(temp_file.name)
         
         return result
         
