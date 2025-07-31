@@ -25,4 +25,4 @@ RUN echo "TYPHOON_OCR_API_KEY=${TYPHOON_OCR_API_KEY}" > config.env && \
 EXPOSE 8001
 
 # รัน application
-CMD ["python3", "api_server.py"] 
+CMD ["uvicorn", "api_server:app", "--host", "0.0.0.0", "--port", "8001"] 
